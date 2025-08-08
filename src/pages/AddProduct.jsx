@@ -31,7 +31,7 @@ const AddProduct = () => {
         setIsLoading(true);
         try {
             const res = await api.post("/api/products", formData);
-            toast.info("✅ Product added successfully!");
+            toast.info("Product added successfully!");
             setForm({
                 name: "",
                 description: "",
@@ -46,7 +46,7 @@ const AddProduct = () => {
 
             const errorMsg =
                 err.response?.data?.message || "Something went wrong while submitting!";
-            toast.error(`❌ ${errorMsg}`);
+            toast.error(`${errorMsg}`);
         } finally {
             setIsLoading(false);
         }
