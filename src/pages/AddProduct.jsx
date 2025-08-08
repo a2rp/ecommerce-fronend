@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Button, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
 import noReply from "../assets/images/noReply.png";
+import { api } from "../api";
 
 const AddProduct = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +30,7 @@ const AddProduct = () => {
 
         setIsLoading(true);
         try {
-            const res = await axios.post("http://localhost:1198/api/products", formData);
+            const res = await api.post("/api/products", formData);
             toast.info("✅ Product added successfully!");
             setForm({
                 name: "",

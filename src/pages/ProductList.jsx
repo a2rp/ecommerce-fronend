@@ -5,12 +5,13 @@ import ProductCard from "../components/ProductCard";
 import { Link, NavLink } from "react-router-dom";
 import styled from "styled-components";
 import { IoIosAdd } from "react-icons/io";
+import { api } from "../api";
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
 
     const fetchProducts = async () => {
-        const res = await axios.get("http://localhost:1198/api/products");
+        const res = await api.get("/api/products");
         setProducts(res.data.products);
     };
 
