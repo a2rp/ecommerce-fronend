@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import styled from "styled-components";
 import { Button, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
@@ -14,9 +13,8 @@ const AddProduct = () => {
         price: "",
         category: "",
         image: "",
-        preview: "",  // 👈 for showing preview
+        preview: "",
     });
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,8 +28,11 @@ const AddProduct = () => {
 
         setIsLoading(true);
         try {
-            const res = await api.post("/api/products", formData);
-            toast.info("Product added successfully!");
+            const res = await api.post("/api/products", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            toast.success("Product added successfully!");
+
             setForm({
                 name: "",
                 description: "",
@@ -43,7 +44,6 @@ const AddProduct = () => {
             document.querySelector('input[name="image"]').value = "";
         } catch (err) {
             console.error("Client error:", err);
-
             const errorMsg =
                 err.response?.data?.message || "Something went wrong while submitting!";
             toast.error(`${errorMsg}`);
@@ -57,14 +57,11 @@ const AddProduct = () => {
 
         if (name === "image") {
             const file = files[0];
-
-            // ✅ Check MIME type (allow only images)
-            if (!file.type.startsWith("image/")) {
-                toast.error("❌ Only image files are allowed.");
+            if (!file || !file.type.startsWith("image/")) {
+                toast.error("Only image files are allowed.");
                 return;
             }
 
-            // ✅ Set preview and file
             const previewUrl = URL.createObjectURL(file);
             setForm({ ...form, image: file, preview: previewUrl });
         } else {
@@ -81,83 +78,93 @@ const AddProduct = () => {
             image: "",
             preview: "",
         });
-
-        // Also reset the file input manually
         document.querySelector('input[name="image"]').value = "";
-        console.log("clear clicked");
-
     };
 
-
     return (
-        <>
-            <Styled.Wrapper>
-                <Styled.Heading>Add A Product</Styled.Heading>
-                <Styled.Form
-                    onSubmit={handleSubmit}
-                >
-                    <input
-                        className="text"
-                        type="text"
-                        name="name"
-                        placeholder="Name"
-                        onChange={handleChange} required
-                        value={form.name}
-                    />
-                    <input
-                        className="text"
-                        type="text"
-                        name="description"
-                        placeholder="Description"
-                        onChange={handleChange}
-                        required
-                        value={form.description}
-                    />
+        <Styled.Wrapper>
+            <Styled.Heading>Add A Product</Styled.Heading>
+            <Styled.Form onSubmit={handleSubmit}>
+                <input
+                    className="text"
+                    type="text"
+                    name="name"
+                    placeholder="Name"
+                    onChange={handleChange}
+                    required
+                    value={form.name}
+                />
+                <input
+                    className="text"
+                    type="text"
+                    name="description"
+                    placeholder="Description"
+                    onChange={handleChange}
+                    required
+                    value={form.description}
+                />
+                <input
+                    className="text"
+                    type="number"
+                    name="price"
+                    placeholder="Price"
+                    onChange={handleChange}
+                    required
+                    value={form.price}
+                />
+                <input
+                    className="text"
+                    type="text"
+                    name="category"
+                    placeholder="Category"
+                    onChange={handleChange}
+                    required
+                    value={form.category}
+                />
 
-                    <input
-                        className="text"
-                        type="number"
-                        name="price"
-                        placeholder="Price"
-                        onChange={handleChange}
-                        required
-                        value={form.price}
-                    />
-
-                    <input
-                        className="text"
-                        type="text"
-                        name="category"
-                        placeholder="Category"
-                        onChange={handleChange}
-                        required
-                        value={form.category}
-                    />
-
-                    <Styled.ImageInputWrapper>
-                        <Styled.DisplaImage style={{
-                            backgroundImage: form.preview ? `url(${form.preview})` : `url(${noReply})`,
+                <Styled.ImageInputWrapper>
+                    <Styled.DisplayImage
+                        style={{
+                            backgroundImage: `url(${form.preview || noReply})`,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
-                        }} />
-                        <Styled.ImageInput type="file" name="image" accept="image/*" onChange={handleChange} required />
-                    </Styled.ImageInputWrapper>
+                        }}
+                    />
+                    <Styled.ImageInput
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        onChange={handleChange}
+                        required
+                    />
+                </Styled.ImageInputWrapper>
 
-                    <Styled.ButtonsWrapper>
-                        <Button variant="contained" type="submit" disabled={isLoading} className="submitButton">
-                            {isLoading ? <CircularProgress /> : "Submit"}
-                        </Button>
-                        <Button variant="contained" color="secondary" disabled={isLoading} onClick={resetForm} className="clearButton">
-                            {isLoading ? <CircularProgress /> : "Clear Form"}
-                        </Button>
-                    </Styled.ButtonsWrapper>
-                </Styled.Form>
-            </Styled.Wrapper>
-        </>
+                <Styled.ButtonsWrapper>
+                    <Button
+                        variant="contained"
+                        type="submit"
+                        disabled={isLoading}
+                        className="submitButton"
+                    >
+                        {isLoading ? <CircularProgress size={20} /> : "Submit"}
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        disabled={isLoading}
+                        onClick={resetForm}
+                        className="clearButton"
+                    >
+                        {isLoading ? <CircularProgress size={20} /> : "Clear Form"}
+                    </Button>
+                </Styled.ButtonsWrapper>
+            </Styled.Form>
+        </Styled.Wrapper>
     );
 };
 
 export default AddProduct;
+
 
 
 const Styled = {
@@ -195,7 +202,7 @@ const Styled = {
         margin-bottom: 15px;;
         flex-wrap: wrap;
     `,
-    DisplaImage: styled.div`
+    DisplayImage: styled.div`
         background-color: #eee;
         border-radius: 6px;
         width: 200px;

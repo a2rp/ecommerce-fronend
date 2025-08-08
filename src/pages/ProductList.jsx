@@ -20,7 +20,7 @@ const ProductList = () => {
             setProducts(res.data.products);
         } catch (error) {
             console.log(error, "error fetch");
-            // toast.error(error.message);
+            toast.error(error.message);
         } finally {
             setIsLoading(false);
         }
